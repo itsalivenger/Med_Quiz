@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import QuizEngine from '@/components/QuizEngine';
 import { useQuizStore } from '@/store/useQuizStore';
@@ -48,7 +48,7 @@ function mockQuestions(courseId: string): Question[] {
   }));
 }
 
-export default function StaticQuizPage() {
+function StaticQuizContent() {
   const params       = useParams();
   const searchParams = useSearchParams();
   const slug         = (params.slug as string[]) ?? [];
@@ -73,4 +73,18 @@ export default function StaticQuizPage() {
   }
 
   return <QuizEngine />;
+}
+
+export default function StaticQuizPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <span className="h-6 w-6 animate-spin rounded-full border-2 border-red-600 border-t-transparent" />
+        </div>
+      }
+    >
+      <StaticQuizContent />
+    </Suspense>
+  );
 }

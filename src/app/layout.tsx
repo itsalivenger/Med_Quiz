@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import Link from 'next/link';
 import { Geist, Geist_Mono } from 'next/font/google';
 import Navbar from '@/components/Navbar';
 import SpotlightGrid from '@/components/SpotlightGrid';
@@ -39,8 +40,32 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AmbientGlow />
         <Navbar />
         <main className="relative z-10 flex flex-1 flex-col pt-14">{children}</main>
-        <footer className="relative z-10 border-t border-zinc-800/60 py-6 text-center text-xs text-zinc-500">
-          © {CURRENT_YEAR} MedQuiz · La plateforme médicale pour étudiants en médecine
+        <footer className="relative z-10 border-t border-zinc-800/60 py-8 px-4 text-center text-xs text-zinc-500">
+          <div className="mx-auto max-w-5xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <p className="font-semibold text-zinc-400">MedQuiz · Plateforme Médicale Zéro Distraction</p>
+              <p className="mt-0.5 text-[11px] text-zinc-600">
+                © {CURRENT_YEAR} MedQuiz · Conforme aux référentiels des collèges nationaux d&apos;enseignants
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-4 text-xs">
+              <Link href="/about" className="hover:text-slate-300 transition-colors">
+                À propos
+              </Link>
+              <Link href="/faq" className="hover:text-slate-300 transition-colors">
+                FAQ
+              </Link>
+              <Link href="/contact" className="hover:text-slate-300 transition-colors">
+                Contact
+              </Link>
+              <Link href="/legal" className="hover:text-slate-300 transition-colors">
+                Mentions Légales & RGPD
+              </Link>
+              <Link href="/admin/login" className="text-zinc-600 hover:text-red-400 transition-colors">
+                Accès Faculté
+              </Link>
+            </div>
+          </div>
         </footer>
       </body>
     </html>

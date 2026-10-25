@@ -34,6 +34,12 @@ export default function Navbar() {
             Catalogue
           </Link>
           <Link
+            href="/dashboard"
+            className="text-xs sm:text-sm font-medium text-zinc-400 transition-colors hover:text-white"
+          >
+            Tableau de bord
+          </Link>
+          <Link
             href="/faq"
             className="text-xs sm:text-sm font-medium text-zinc-400 transition-colors hover:text-white"
           >

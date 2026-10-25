@@ -1,4 +1,4 @@
-import StatsOverview from '@/components/StatsOverview';
+import DashboardView from '@/components/DashboardView';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -8,8 +8,8 @@ export const metadata: Metadata = {
 
 export default function DashboardPage() {
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 pt-24 pb-12 sm:pt-28 sm:px-6 lg:px-8">
-      <StatsOverview />
+    <div className="mx-auto w-full max-w-6xl px-4 pt-20 pb-16 sm:px-6 lg:px-8">
+      <DashboardView />
     </div>
   );
 }

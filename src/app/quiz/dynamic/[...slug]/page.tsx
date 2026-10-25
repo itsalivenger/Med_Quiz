@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import QuizEngine from '@/components/QuizEngine';
 import { useQuizStore } from '@/store/useQuizStore';
@@ -42,7 +42,7 @@ function mockAIQuestion(courseId: string, index: number): Question {
   };
 }
 
-export default function DynamicQuizPage() {
+function DynamicQuizContent() {
   const params   = useParams();
   const slug     = (params.slug as string[]) ?? [];
   const courseId = slug[slug.length - 1] ?? 'scapula';
@@ -78,4 +78,18 @@ export default function DynamicQuizPage() {
   }
 
   return <QuizEngine />;
+}
+
+export default function DynamicQuizPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <span className="h-6 w-6 animate-spin rounded-full border-2 border-red-600 border-t-transparent" />
+        </div>
+      }
+    >
+      <DynamicQuizContent />
+    </Suspense>
+  );
 }
