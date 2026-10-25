@@ -2,19 +2,17 @@
 
 import { useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, ChevronRight, CheckCircle2, XCircle, Clock, BookOpen, RotateCcw } from 'lucide-react';
+import { X, ChevronRight, CheckCircle2, XCircle, Clock, BookOpen, RotateCcw, ShieldCheck } from 'lucide-react';
 import { useQuizStore } from '@/store/useQuizStore';
 
 // ─── Formatage du temps ───────────────────────────────────────────
 function formatTime(secs: number) {
-  const m = Math.floor(secs / 60)
-    .toString()
-    .padStart(2, '0');
+  const m = Math.floor(secs / 60).toString().padStart(2, '0');
   const s = (secs % 60).toString().padStart(2, '0');
   return `${m}:${s}`;
 }
 
-// ─── Composant Choix de Réponse (Option) ─────────────────────────
+// ─── Composant Choix de Réponse ───────────────────────────────────
 interface OptionCardProps {
   letter: string;
   text: string;
@@ -36,15 +34,16 @@ function OptionCard({
   explanation,
   onClick,
 }: OptionCardProps) {
-  let cardStyles =
-    'bg-[#161616] border-zinc-800 hover:border-red-600/50 text-slate-200';
+  let cardStyles = 'bg-[#161616] border-zinc-800 hover:border-zinc-700 text-slate-200';
   let badgeStyles = 'bg-zinc-800 text-slate-300 border-zinc-700';
 
   if (isSubmitted) {
     if (isCorrect) {
-      cardStyles = 'border-emerald-500 bg-emerald-950/20 text-emerald-300';
-      badgeStyles = 'bg-emerald-600 text-white border-emerald-500';
+      // Teal — correct answer
+      cardStyles = 'border-teal-500 bg-teal-950/30 text-teal-200';
+      badgeStyles = 'bg-teal-600 text-white border-teal-500';
     } else if (isWrong) {
+      // Crimson — wrong answer
       cardStyles = 'border-red-600 bg-red-950/40 text-red-300';
       badgeStyles = 'bg-red-600 text-white border-red-500';
     } else {
@@ -52,6 +51,7 @@ function OptionCard({
       badgeStyles = 'bg-zinc-900 text-zinc-600 border-zinc-800';
     }
   } else if (selected) {
+    // Crimson — active selection
     cardStyles = 'border-red-600 bg-red-950/20 text-white';
     badgeStyles = 'bg-red-600 text-white border-red-500 font-bold';
   }
@@ -63,7 +63,8 @@ function OptionCard({
         onClick={onClick}
         disabled={isSubmitted}
         className={[
-          'group relative flex w-full cursor-pointer items-start gap-3.5 rounded-xl border p-4 text-left transition-colors outline-none',
+          'group relative flex w-full cursor-pointer items-start gap-3.5 rounded-xl border p-4 text-left',
+          'transition-all duration-150 outline-none',
           cardStyles,
           isSubmitted ? 'cursor-default' : 'active:scale-[0.99]',
         ].join(' ')}
@@ -77,14 +78,12 @@ function OptionCard({
           {letter}
         </span>
 
-        <span className="flex-1 text-sm sm:text-base leading-relaxed pt-0.5">
-          {text}
-        </span>
+        <span className="flex-1 text-sm sm:text-base leading-relaxed pt-0.5">{text}</span>
 
         {isSubmitted && (
           <span className="shrink-0 pt-0.5">
             {isCorrect ? (
-              <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+              <CheckCircle2 className="h-5 w-5 text-teal-400" />
             ) : isWrong ? (
               <XCircle className="h-5 w-5 text-red-400" />
             ) : null}
@@ -92,14 +91,14 @@ function OptionCard({
         )}
       </button>
 
-      {/* Explication par item après soumission */}
+      {/* Per-option explanation */}
       {isSubmitted && (isCorrect || isWrong) && explanation && (
         <div
           className={[
             'ml-10 rounded-lg px-3 py-1.5 text-xs leading-relaxed animate-fade-in',
             isCorrect
-              ? 'bg-emerald-950/20 text-emerald-400 border-l border-emerald-500'
-              : 'bg-red-950/20 text-red-400 border-l border-red-600',
+              ? 'bg-teal-950/20 text-teal-400 border-l-2 border-teal-500'
+              : 'bg-red-950/20 text-red-400 border-l-2 border-red-600',
           ].join(' ')}
         >
           <strong className="font-semibold mr-1">
@@ -112,7 +111,7 @@ function OptionCard({
   );
 }
 
-// ─── Composant Principal QuizEngine ───────────────────────────────
+// ─── QuizEngine Principal ─────────────────────────────────────────
 export default function QuizEngine() {
   const router = useRouter();
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -132,7 +131,6 @@ export default function QuizEngine() {
     resetQuiz,
   } = useQuizStore();
 
-  // Décompte du chronomètre
   useEffect(() => {
     if (timerSeconds > 0 && !isSubmitted && !isFinished) {
       timerRef.current = setInterval(tickTimer, 1000);
@@ -153,44 +151,38 @@ export default function QuizEngine() {
     submitAnswer();
   }, [selected, isSubmitted, submitAnswer]);
 
-  // Raccourcis clavier (A-E, Entrée)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
       const key = e.key.toUpperCase();
       if (['A', 'B', 'C', 'D', 'E'].includes(key)) {
         const optionExists = q?.options.some((o) => o.letter === key);
-        if (optionExists && !isSubmitted) {
-          selectOption(key);
-        }
+        if (optionExists && !isSubmitted) selectOption(key);
       } else if (e.key === 'Enter') {
-        if (!isSubmitted && selected) {
-          handleSubmit();
-        } else if (isSubmitted) {
-          nextQuestion();
-        }
+        if (!isSubmitted && selected) handleSubmit();
+        else if (isSubmitted) nextQuestion();
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [q, isSubmitted, selected, selectOption, handleSubmit, nextQuestion]);
 
-  // ── Écran de fin de session (Zéro Émoji sur les boutons) ─────────
+  // ── Écran de fin ────────────────────────────────────────────────
   if (isFinished || (!q && questions.length > 0)) {
     const percentage = totalQ > 0 ? Math.round((score / totalQ) * 100) : 0;
+    const isPassing = percentage >= 70;
     return (
       <div className="mx-auto w-full max-w-xl px-4 pt-10 sm:pt-14 pb-16 animate-fade-up text-center">
         <div className="rounded-2xl border border-zinc-800 bg-[#161616] p-8 shadow-2xl space-y-6">
           <div className="space-y-1">
-            <h2 className="text-3xl font-extrabold text-white">
-              {score}/{totalQ} Correctes
-            </h2>
-            <p className="text-sm font-medium text-red-500">{percentage}% de réussite</p>
+            <h2 className="text-3xl font-extrabold text-white">{score}/{totalQ} Correctes</h2>
+            <p className={isPassing ? 'text-sm font-semibold text-teal-400' : 'text-sm font-semibold text-red-500'}>
+              {percentage}% de réussite
+            </p>
           </div>
 
           <p className="text-sm text-zinc-400">
-            {percentage >= 70
+            {isPassing
               ? 'Excellent travail. Notions médicales clés maîtrisées.'
               : 'Révisez les items manqués pour consolider vos acquis.'}
           </p>
@@ -198,10 +190,7 @@ export default function QuizEngine() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4 border-t border-zinc-800/80">
             <button
               type="button"
-              onClick={() => {
-                resetQuiz();
-                router.push('/catalog');
-              }}
+              onClick={() => { resetQuiz(); router.push('/catalog'); }}
               className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-5 py-2.5 text-sm font-medium text-slate-300 hover:bg-zinc-800 hover:text-white transition-colors"
             >
               <RotateCcw className="h-4 w-4" />
@@ -210,7 +199,7 @@ export default function QuizEngine() {
             <button
               type="button"
               onClick={() => router.push('/dashboard')}
-              className="w-full sm:w-auto rounded-xl bg-red-600 hover:bg-red-500 px-6 py-2.5 text-sm font-semibold text-white transition-colors shadow-lg shadow-red-900/30"
+              className="w-full sm:w-auto rounded-xl bg-teal-600 hover:bg-teal-500 px-6 py-2.5 text-sm font-semibold text-white transition-colors shadow-[0_0_20px_rgba(13,148,136,0.30)]"
             >
               Tableau de bord
             </button>
@@ -220,7 +209,7 @@ export default function QuizEngine() {
     );
   }
 
-  // ── Cas où aucune question n'est chargée ────────────────────────
+  // ── Aucune question ──────────────────────────────────────────────
   if (!q) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 text-center">
@@ -228,7 +217,7 @@ export default function QuizEngine() {
         <button
           type="button"
           onClick={() => router.push('/catalog')}
-          className="text-xs text-red-500 hover:underline"
+          className="text-xs text-teal-500 hover:underline"
         >
           Retour au catalogue
         </button>
@@ -242,12 +231,12 @@ export default function QuizEngine() {
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 pt-8 sm:pt-10 pb-16 animate-fade-up">
+
       {/* ── Barre supérieure ── */}
       <div className="mb-4 flex items-center justify-between gap-3 text-xs">
         <p className="truncate text-zinc-400 font-medium" title={breadcrumbText}>
           {breadcrumbText}
         </p>
-
         <div className="flex items-center gap-3 shrink-0">
           {timerSeconds > 0 && (
             <span
@@ -260,7 +249,6 @@ export default function QuizEngine() {
               {formatTime(timerSeconds)}
             </span>
           )}
-
           <button
             type="button"
             onClick={() => router.push('/catalog')}
@@ -272,22 +260,20 @@ export default function QuizEngine() {
         </div>
       </div>
 
-      {/* ── Ligne de progression fine ── */}
+      {/* ── Barre de progression — teal → crimson ── */}
       <div className="mb-6 h-1 w-full overflow-hidden rounded-full bg-zinc-800">
         <div
-          className="progress-fill h-full bg-red-600 rounded-full"
+          className="progress-fill h-full rounded-full bg-gradient-to-r from-teal-500 to-red-600"
           style={{ width: `${progress}%` }}
         />
       </div>
 
-      {/* ── Énoncé du Cas Clinique ── */}
+      {/* ── Énoncé clinique ── */}
       <div className="rounded-2xl border border-zinc-800/80 bg-[#161616] p-6 shadow-xl mb-5">
-        <p className="text-slate-100 text-base sm:text-lg leading-relaxed font-normal">
-          {q.vignette}
-        </p>
+        <p className="text-slate-100 text-base sm:text-lg leading-relaxed font-normal">{q.vignette}</p>
       </div>
 
-      {/* ── Grille des Options (A, B, C, D) ── */}
+      {/* ── Grille des options ── */}
       <div className="flex flex-col gap-2.5">
         {q.options.map((opt) => (
           <OptionCard
@@ -304,19 +290,24 @@ export default function QuizEngine() {
         ))}
       </div>
 
-      {/* ── Explication & Justification médicale ── */}
+      {/* ── Explication & source ── */}
       {isSubmitted && (
         <div className="mt-5 rounded-xl border border-zinc-800 bg-[#161616] p-5 animate-fade-in space-y-3">
           <div className="flex items-center justify-between text-xs pb-2 border-b border-zinc-800/80">
             <span className="font-semibold text-slate-200">Explication & Justification médicale</span>
-            {q.source_citation && (
-              <span className="flex items-center gap-1 text-zinc-500">
-                <BookOpen className="h-3 w-3" />
+            {q.source_citation ? (
+              /* Teal verified-source badge */
+              <span className="flex items-center gap-1.5 bg-teal-950/50 text-teal-300 border border-teal-800/60 rounded-full px-2.5 py-0.5 text-[11px] font-medium">
+                <ShieldCheck className="h-3 w-3 shrink-0" />
                 {q.source_citation}
+              </span>
+            ) : (
+              <span className="flex items-center gap-1 text-[11px] text-zinc-500">
+                <BookOpen className="h-3 w-3" />
+                Source non spécifiée
               </span>
             )}
           </div>
-
           <p className="text-xs sm:text-sm leading-relaxed text-slate-300">
             {q.options.find((o) => o.is_correct)?.explanation ??
               'Revoyez la physiopathologie et les points diagnostiques clés.'}
@@ -324,10 +315,11 @@ export default function QuizEngine() {
         </div>
       )}
 
-      {/* ── Barre d'action : Aucun émoji sur les boutons ── */}
+      {/* ── Barre d'action ── */}
       <div className="mt-6 flex items-center justify-between pt-3 border-t border-zinc-800/60">
         <span className="text-[11px] text-zinc-500 hidden sm:inline">
-          Raccourcis : <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-0.5 text-[10px]">A</kbd>–
+          Raccourcis :{' '}
+          <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-0.5 text-[10px]">A</kbd>–
           <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-0.5 text-[10px]">D</kbd>,{' '}
           <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-0.5 text-[10px]">Entrée</kbd>
         </span>
@@ -339,7 +331,7 @@ export default function QuizEngine() {
               onClick={handleSubmit}
               disabled={!selected}
               className={[
-                'rounded-xl px-6 py-2.5 text-sm font-semibold transition-colors',
+                'rounded-xl px-6 py-2.5 text-sm font-semibold transition-all duration-150',
                 selected
                   ? 'bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-900/30'
                   : 'bg-zinc-800 text-zinc-600 cursor-not-allowed',
@@ -351,7 +343,7 @@ export default function QuizEngine() {
             <button
               type="button"
               onClick={nextQuestion}
-              className="flex items-center gap-1.5 rounded-xl bg-red-600 hover:bg-red-500 px-6 py-2.5 text-sm font-semibold text-white transition-colors shadow-lg shadow-red-900/30"
+              className="flex items-center gap-1.5 rounded-xl bg-red-600 hover:bg-red-500 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-150 shadow-lg shadow-red-900/30"
             >
               <span>{currentIndex + 1 < totalQ ? 'Question suivante' : 'Voir les résultats'}</span>
               <ChevronRight className="h-4 w-4" />

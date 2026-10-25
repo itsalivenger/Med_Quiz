@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import Navbar from '@/components/Navbar';
 import SpotlightGrid from '@/components/SpotlightGrid';
+import AmbientGlow from '@/components/AmbientGlow';
 import './globals.css';
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className="relative flex min-h-full flex-col bg-[#111111] text-slate-100">
         <SpotlightGrid />
+        <AmbientGlow />
         <Navbar />
         <main className="relative z-10 flex flex-1 flex-col pt-14">{children}</main>
         <footer className="relative z-10 border-t border-zinc-800/60 py-6 text-center text-xs text-zinc-500">
