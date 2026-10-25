@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════════
+   MedQuiz — Minimal Dark Graphite & Smooth Crimson Theme
+   Base: #111111 · Surface: #181818 · Accent: Crimson #DC2626
+═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Surfaces ── */
+  --bg-base:          #111111;
+  --bg-surface:       #181818;
+  --bg-card:          #181818;
+  --bg-elevated:      #202020;
+
+  /* ── Borders ── */
+  --border-subtle:    rgba(255, 255, 255, 0.05);
+  --border-default:   rgba(255, 255, 255, 0.08);
+  --border-strong:    rgba(255, 255, 255, 0.14);
+
+  /* ── Text ── */
+  --text-primary:     #f1f5f9;
+  --text-secondary:   #94a3b8;
+  --text-muted:       #71717a;
+  --text-faint:       #3f3f46;
+
+  /* ── Accent: Smooth Crimson ── */
+  --crimson:          #dc2626;
+  --crimson-hover:    #ef4444;
+  --crimson-subtle:   rgba(220, 38, 38, 0.12);
+  --crimson-glow:     rgba(220, 38, 38, 0.25);
+
+  /* ── State Accents ── */
+  --emerald:          #10b981;
+  --emerald-subtle:   rgba(16, 185, 129, 0.15);
+
+  /* ── Transitions ── */
+  --ease-fast:        all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@theme inline {
+  --color-background: var(--bg-base);
+  --color-foreground: var(--text-primary);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* ─── Base Reset ─────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color-scheme: dark;
+  background-color: #111111;
+}
+
+body {
+  background-color: #111111;
+  color: var(--text-primary);
+  min-height: 100dvh;
+  font-family: var(--font-geist-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  overflow-x: hidden;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* ─── Selection ──────────────────────────────────────────────── */
+::selection {
+  background: rgba(220, 38, 38, 0.3);
+  color: #ffffff;
+}
+
+/* ─── Utility classes ────────────────────────────────────────── */
+.btn-crimson {
+  background-color: #dc2626;
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  transition: var(--ease-fast);
+}
+.btn-crimson:hover:not(:disabled) {
+  background-color: #ef4444;
+}
+
+.btn-zinc {
+  background-color: #27272a;
+  color: #f1f5f9;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  transition: var(--ease-fast);
+}
+.btn-zinc:hover:not(:disabled) {
+  background-color: #3f3f46;
+  color: #ffffff;
+}
+
+/* ─── Micro Animations ───────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(0.85); }
+}
+
+.animate-fade-in  { animation: fadeIn 0.25s ease-out both; }
+.animate-fade-up  { animation: fadeUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-pulse-dot { animation: pulseDot 2s ease-in-out infinite; }
+
+.progress-fill {
+  transition: width 0.35s ease-out;
+}
+
+@keyframes neuralHeartbeat {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.14;
+  }
+  25% {
+    transform: translate3d(35px, -20px, 0) scale(1.15);
+    opacity: 0.24;
+  }
+  50% {
+    transform: translate3d(50px, 15px, 0) scale(1.04);
+    opacity: 0.16;
+  }
+  75% {
+    transform: translate3d(20px, 25px, 0) scale(1.2);
+    opacity: 0.26;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.14;
+  }
+}
+
+.animate-neural-heartbeat {
+  animation: neuralHeartbeat 10s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
