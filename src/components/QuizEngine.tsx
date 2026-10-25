@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { X, ChevronRight, CheckCircle2, XCircle, Clock, BookOpen, RotateCcw } from 'lucide-react';
 import { useQuizStore } from '@/store/useQuizStore';
 
-// ─── Time Formatter ───────────────────────────────────────────────
+// ─── Formatage du temps ───────────────────────────────────────────
 function formatTime(secs: number) {
   const m = Math.floor(secs / 60)
     .toString()
@@ -14,7 +14,7 @@ function formatTime(secs: number) {
   return `${m}:${s}`;
 }
 
-// ─── Option Card Component ────────────────────────────────────────
+// ─── Composant Choix de Réponse (Option) ─────────────────────────
 interface OptionCardProps {
   letter: string;
   text: string;
@@ -92,7 +92,7 @@ function OptionCard({
         )}
       </button>
 
-      {/* Per-option rationale reveal */}
+      {/* Explication par item après soumission */}
       {isSubmitted && (isCorrect || isWrong) && explanation && (
         <div
           className={[
@@ -102,6 +102,9 @@ function OptionCard({
               : 'bg-red-950/20 text-red-400 border-l border-red-600',
           ].join(' ')}
         >
+          <strong className="font-semibold mr-1">
+            {isCorrect ? 'Justification :' : 'Erreur fréquente :'}
+          </strong>
           {explanation}
         </div>
       )}
@@ -109,7 +112,7 @@ function OptionCard({
   );
 }
 
-// ─── Main QuizEngine Component ────────────────────────────────────
+// ─── Composant Principal QuizEngine ───────────────────────────────
 export default function QuizEngine() {
   const router = useRouter();
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -129,7 +132,7 @@ export default function QuizEngine() {
     resetQuiz,
   } = useQuizStore();
 
-  // Timer Tick
+  // Décompte du chronomètre
   useEffect(() => {
     if (timerSeconds > 0 && !isSubmitted && !isFinished) {
       timerRef.current = setInterval(tickTimer, 1000);
@@ -150,7 +153,7 @@ export default function QuizEngine() {
     submitAnswer();
   }, [selected, isSubmitted, submitAnswer]);
 
-  // Keyboard Shortcuts (A-E, Enter)
+  // Raccourcis clavier (A-E, Entrée)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
@@ -173,7 +176,7 @@ export default function QuizEngine() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [q, isSubmitted, selected, selectOption, handleSubmit, nextQuestion]);
 
-  // ── Finished Screen: Clean & Minimal (Zero Emojis) ──────────────
+  // ── Écran de fin de session (Zéro Émoji sur les boutons) ─────────
   if (isFinished || (!q && questions.length > 0)) {
     const percentage = totalQ > 0 ? Math.round((score / totalQ) * 100) : 0;
     return (
@@ -181,15 +184,15 @@ export default function QuizEngine() {
         <div className="rounded-2xl border border-zinc-800 bg-[#161616] p-8 shadow-2xl space-y-6">
           <div className="space-y-1">
             <h2 className="text-3xl font-extrabold text-white">
-              {score}/{totalQ} Correct
+              {score}/{totalQ} Correctes
             </h2>
-            <p className="text-sm font-medium text-red-500">{percentage}% Accuracy</p>
+            <p className="text-sm font-medium text-red-500">{percentage}% de réussite</p>
           </div>
 
           <p className="text-sm text-zinc-400">
             {percentage >= 70
-              ? 'Great job. Target concepts retained.'
-              : 'Review missed questions to solidify understanding.'}
+              ? 'Excellent travail. Notions médicales clés maîtrisées.'
+              : 'Révisez les items manqués pour consolider vos acquis.'}
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4 border-t border-zinc-800/80">
@@ -202,14 +205,14 @@ export default function QuizEngine() {
               className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-5 py-2.5 text-sm font-medium text-slate-300 hover:bg-zinc-800 hover:text-white transition-colors"
             >
               <RotateCcw className="h-4 w-4" />
-              <span>Catalog</span>
+              <span>Retour au catalogue</span>
             </button>
             <button
               type="button"
               onClick={() => router.push('/dashboard')}
               className="w-full sm:w-auto rounded-xl bg-red-600 hover:bg-red-500 px-6 py-2.5 text-sm font-semibold text-white transition-colors shadow-lg shadow-red-900/30"
             >
-              View Dashboard
+              Tableau de bord
             </button>
           </div>
         </div>
@@ -217,17 +220,17 @@ export default function QuizEngine() {
     );
   }
 
-  // ── Empty Fallback ──────────────────────────────────────────────
+  // ── Cas où aucune question n'est chargée ────────────────────────
   if (!q) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 text-center">
-        <p className="text-zinc-500 text-sm">No questions in buffer.</p>
+        <p className="text-zinc-500 text-sm">Aucune question dans la file.</p>
         <button
           type="button"
           onClick={() => router.push('/catalog')}
           className="text-xs text-red-500 hover:underline"
         >
-          Return to Catalog
+          Retour au catalogue
         </button>
       </div>
     );
@@ -235,11 +238,11 @@ export default function QuizEngine() {
 
   const breadcrumbText = q.title_path
     ? q.title_path.replace(/›/g, '>').replace(/·/g, '>')
-    : 'Clinical Vignette';
+    : 'Cas clinique';
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 pt-8 sm:pt-10 pb-16 animate-fade-up">
-      {/* ── Top Bar ── */}
+      {/* ── Barre supérieure ── */}
       <div className="mb-4 flex items-center justify-between gap-3 text-xs">
         <p className="truncate text-zinc-400 font-medium" title={breadcrumbText}>
           {breadcrumbText}
@@ -262,14 +265,14 @@ export default function QuizEngine() {
             type="button"
             onClick={() => router.push('/catalog')}
             className="flex h-7 w-7 items-center justify-center rounded-lg border border-zinc-800 text-zinc-400 hover:text-white transition-colors"
-            title="Exit"
+            title="Quitter la session"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
       </div>
 
-      {/* ── Top Progress: Thin Crimson Progress Bar (bg-red-600 h-1 rounded-full) ── */}
+      {/* ── Ligne de progression fine ── */}
       <div className="mb-6 h-1 w-full overflow-hidden rounded-full bg-zinc-800">
         <div
           className="progress-fill h-full bg-red-600 rounded-full"
@@ -277,14 +280,14 @@ export default function QuizEngine() {
         />
       </div>
 
-      {/* ── Clinical Vignette Card (bg-[#161616] border border-zinc-800/80 p-6 rounded-2xl) ── */}
+      {/* ── Énoncé du Cas Clinique ── */}
       <div className="rounded-2xl border border-zinc-800/80 bg-[#161616] p-6 shadow-xl mb-5">
         <p className="text-slate-100 text-base sm:text-lg leading-relaxed font-normal">
           {q.vignette}
         </p>
       </div>
 
-      {/* ── Options Grid (A, B, C, D) ── */}
+      {/* ── Grille des Options (A, B, C, D) ── */}
       <div className="flex flex-col gap-2.5">
         {q.options.map((opt) => (
           <OptionCard
@@ -301,11 +304,11 @@ export default function QuizEngine() {
         ))}
       </div>
 
-      {/* ── Explanation Drawer ── */}
+      {/* ── Explication & Justification médicale ── */}
       {isSubmitted && (
         <div className="mt-5 rounded-xl border border-zinc-800 bg-[#161616] p-5 animate-fade-in space-y-3">
           <div className="flex items-center justify-between text-xs pb-2 border-b border-zinc-800/80">
-            <span className="font-semibold text-slate-200">Explanation & Rationale</span>
+            <span className="font-semibold text-slate-200">Explication & Justification médicale</span>
             {q.source_citation && (
               <span className="flex items-center gap-1 text-zinc-500">
                 <BookOpen className="h-3 w-3" />
@@ -316,17 +319,17 @@ export default function QuizEngine() {
 
           <p className="text-xs sm:text-sm leading-relaxed text-slate-300">
             {q.options.find((o) => o.is_correct)?.explanation ??
-              'Review the relevant pathophysiology and clinical signs.'}
+              'Revoyez la physiopathologie et les points diagnostiques clés.'}
           </p>
         </div>
       )}
 
-      {/* ── Action Bar: No Emojis on Any Buttons ── */}
+      {/* ── Barre d'action : Aucun émoji sur les boutons ── */}
       <div className="mt-6 flex items-center justify-between pt-3 border-t border-zinc-800/60">
         <span className="text-[11px] text-zinc-500 hidden sm:inline">
-          Shortcuts: <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-0.5 text-[10px]">A</kbd>–
+          Raccourcis : <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-0.5 text-[10px]">A</kbd>–
           <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-0.5 text-[10px]">D</kbd>,{' '}
-          <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-0.5 text-[10px]">Enter</kbd>
+          <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-0.5 text-[10px]">Entrée</kbd>
         </span>
 
         <div className="ml-auto">
@@ -342,7 +345,7 @@ export default function QuizEngine() {
                   : 'bg-zinc-800 text-zinc-600 cursor-not-allowed',
               ].join(' ')}
             >
-              Submit Answer
+              Valider la réponse
             </button>
           ) : (
             <button
@@ -350,7 +353,7 @@ export default function QuizEngine() {
               onClick={nextQuestion}
               className="flex items-center gap-1.5 rounded-xl bg-red-600 hover:bg-red-500 px-6 py-2.5 text-sm font-semibold text-white transition-colors shadow-lg shadow-red-900/30"
             >
-              <span>{currentIndex + 1 < totalQ ? 'Next Question' : 'See Results'}</span>
+              <span>{currentIndex + 1 < totalQ ? 'Question suivante' : 'Voir les résultats'}</span>
               <ChevronRight className="h-4 w-4" />
             </button>
           )}

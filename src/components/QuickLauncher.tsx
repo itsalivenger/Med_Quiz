@@ -5,49 +5,49 @@ import { useRouter } from 'next/navigation';
 import { ChevronDown } from 'lucide-react';
 import type { AcademicHierarchy } from '@/lib/types';
 
-// ─── Default Mock Academic Hierarchy ──────────────────────────────
+// ─── Hiérarchie Académique Médicale (Français) ────────────────────
 export const MOCK_HIERARCHY: AcademicHierarchy = [
   {
     id: 'y1',
-    name: 'Year 1',
+    name: '1ère Année (PASS/L.AS)',
     semesters: [
       {
         id: 'y1s1',
-        name: 'Semester 1',
+        name: 'Semestre 1',
         matters: [
           {
             id: 'y1s1-anat',
-            name: 'Anatomy',
+            name: 'Anatomie',
             subsections: [
               {
                 id: 'y1s1-anat-loco',
                 name: 'Appareil Locomoteur',
                 courses: [
-                  { id: 'scapula',  name: 'Scapula',  question_count: 15 },
-                  { id: 'humerus',  name: 'Humerus',  question_count: 12 },
-                  { id: 'clavicle', name: 'Clavicle', question_count: 9  },
+                  { id: 'scapula',  name: 'Scapula & Ceinture Scapulaire', question_count: 15 },
+                  { id: 'humerus',  name: 'Humérus & Bras',               question_count: 12 },
+                  { id: 'clavicle', name: 'Clavicule & Région Pectorale', question_count: 9  },
                 ],
               },
               {
                 id: 'y1s1-anat-neuro',
-                name: 'Neuroanatomy',
+                name: 'Neuroanatomie',
                 courses: [
-                  { id: 'brainstem', name: 'Brainstem',  question_count: 18 },
-                  { id: 'cerebellum',name: 'Cerebellum', question_count: 14 },
+                  { id: 'brainstem', name: 'Tronc cérébral & Nerfs crâniens', question_count: 18 },
+                  { id: 'cerebellum',name: 'Cervelet & Voies motrices',       question_count: 14 },
                 ],
               },
             ],
           },
           {
             id: 'y1s1-bio',
-            name: 'Biochemistry',
+            name: 'Biochimie',
             subsections: [
               {
                 id: 'y1s1-bio-enz',
-                name: 'Enzymology',
+                name: 'Enzymologie',
                 courses: [
-                  { id: 'kinetics',   name: 'Enzyme Kinetics', question_count: 11 },
-                  { id: 'inhibition', name: 'Inhibition Types', question_count: 8 },
+                  { id: 'kinetics',   name: 'Cinétique Michaelienne', question_count: 11 },
+                  { id: 'inhibition', name: 'Inhibitions Réversibles', question_count: 8 },
                 ],
               },
             ],
@@ -56,18 +56,18 @@ export const MOCK_HIERARCHY: AcademicHierarchy = [
       },
       {
         id: 'y1s2',
-        name: 'Semester 2',
+        name: 'Semestre 2',
         matters: [
           {
             id: 'y1s2-physio',
-            name: 'Physiology',
+            name: 'Physiologie',
             subsections: [
               {
                 id: 'y1s2-physio-cardio',
-                name: 'Cardiovascular',
+                name: 'Physiologie Cardiovasculaire',
                 courses: [
-                  { id: 'cardiac-cycle', name: 'Cardiac Cycle', question_count: 20 },
-                  { id: 'ecg-basics',    name: 'ECG Basics',    question_count: 16 },
+                  { id: 'cardiac-cycle', name: 'Cycle Cardiaque & Hémodynamique', question_count: 20 },
+                  { id: 'ecg-basics',    name: 'Électrocardiogramme (ECG)',       question_count: 16 },
                 ],
               },
             ],
@@ -78,22 +78,22 @@ export const MOCK_HIERARCHY: AcademicHierarchy = [
   },
   {
     id: 'y2',
-    name: 'Year 2',
+    name: '2ème Année (DFGSM 2)',
     semesters: [
       {
         id: 'y2s1',
-        name: 'Semester 1',
+        name: 'Semestre 1',
         matters: [
           {
             id: 'y2s1-path',
-            name: 'Pathology',
+            name: 'Anatomopathologie',
             subsections: [
               {
                 id: 'y2s1-path-gen',
-                name: 'General Pathology',
+                name: 'Pathologie Générale',
                 courses: [
-                  { id: 'inflammation', name: 'Inflammation', question_count: 22 },
-                  { id: 'neoplasia',    name: 'Neoplasia',    question_count: 19 },
+                  { id: 'inflammation', name: 'Inflammation Aiguë & Chronique', question_count: 22 },
+                  { id: 'neoplasia',    name: 'Processus Tumoral & Métastases', question_count: 19 },
                 ],
               },
             ],
@@ -111,14 +111,14 @@ interface QuickLauncherProps {
 export default function QuickLauncher({ hierarchy = MOCK_HIERARCHY }: QuickLauncherProps) {
   const router = useRouter();
 
-  // 1. Year Level
+  // 1. Année
   const [yearId, setYearId] = useState<string>('y1');
   const selectedYear = useMemo(
     () => hierarchy.find((y) => y.id === yearId) ?? hierarchy[0],
     [hierarchy, yearId]
   );
 
-  // 2. Semester Level
+  // 2. Semestre
   const availableSemesters = useMemo(
     () => selectedYear?.semesters ?? [],
     [selectedYear]
@@ -129,7 +129,7 @@ export default function QuickLauncher({ hierarchy = MOCK_HIERARCHY }: QuickLaunc
     [availableSemesters, semesterId]
   );
 
-  // 3. Matter Level
+  // 3. Matière
   const availableMatters = useMemo(
     () => selectedSemester?.matters ?? [],
     [selectedSemester]
@@ -140,14 +140,14 @@ export default function QuickLauncher({ hierarchy = MOCK_HIERARCHY }: QuickLaunc
     [availableMatters, matterId]
   );
 
-  // 4. Course / Topic Level
+  // 4. Cours / Sujet
   const availableCourses = useMemo(
     () => selectedMatter?.subsections.flatMap((ss) => ss.courses) ?? [],
     [selectedMatter]
   );
   const [courseId, setCourseId] = useState<string>('scapula');
 
-  // Launch action without emojis
+  // Lancement (aucun emoji sur les boutons)
   const handleLaunch = useCallback(
     (mode: 'static' | 'dynamic') => {
       if (!selectedYear || !selectedSemester || !selectedMatter || !courseId) return;
@@ -158,14 +158,14 @@ export default function QuickLauncher({ hierarchy = MOCK_HIERARCHY }: QuickLaunc
 
   return (
     <div className="w-full">
-      {/* ── Glassmorphic Card Container ── */}
+      {/* ── Conteneur épuré ── */}
       <div className="bg-[#161616]/90 backdrop-blur-xl border border-zinc-800/80 p-6 rounded-2xl shadow-2xl">
-        {/* 4 Horizontal Select Dropdowns */}
+        {/* 4 Menus Déroulants Horizontaux */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-left">
-          {/* Dropdown 1: Year */}
+          {/* Menu 1: Année */}
           <div className="flex flex-col gap-1.5">
             <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
-              Year
+              Année
             </label>
             <div className="relative">
               <select
@@ -193,10 +193,10 @@ export default function QuickLauncher({ hierarchy = MOCK_HIERARCHY }: QuickLaunc
             </div>
           </div>
 
-          {/* Dropdown 2: Semester */}
+          {/* Menu 2: Semestre */}
           <div className="flex flex-col gap-1.5">
             <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
-              Semester
+              Semestre
             </label>
             <div className="relative">
               <select
@@ -222,10 +222,10 @@ export default function QuickLauncher({ hierarchy = MOCK_HIERARCHY }: QuickLaunc
             </div>
           </div>
 
-          {/* Dropdown 3: Matter */}
+          {/* Menu 3: Matière */}
           <div className="flex flex-col gap-1.5">
             <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
-              Matter
+              Matière
             </label>
             <div className="relative">
               <select
@@ -249,10 +249,10 @@ export default function QuickLauncher({ hierarchy = MOCK_HIERARCHY }: QuickLaunc
             </div>
           </div>
 
-          {/* Dropdown 4: Course */}
+          {/* Menu 4: Cours */}
           <div className="flex flex-col gap-1.5">
             <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
-              Course
+              Cours / Sujet
             </label>
             <div className="relative">
               <select
@@ -262,7 +262,7 @@ export default function QuickLauncher({ hierarchy = MOCK_HIERARCHY }: QuickLaunc
               >
                 {availableCourses.map((c) => (
                   <option key={c.id} value={c.id} className="bg-[#111111] text-slate-200">
-                    {c.name} ({c.question_count} Qs)
+                    {c.name} ({c.question_count} QCM)
                   </option>
                 ))}
               </select>
@@ -271,14 +271,14 @@ export default function QuickLauncher({ hierarchy = MOCK_HIERARCHY }: QuickLaunc
           </div>
         </div>
 
-        {/* ── Dual Action CTAs (Strictly No Emojis) ── */}
+        {/* ── Boutons d'Action (Sans aucun émoji) ── */}
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-4 border-t border-zinc-800/80">
           <button
             type="button"
             onClick={() => handleLaunch('static')}
             className="bg-zinc-800 hover:bg-zinc-700 text-white font-medium px-5 py-3 rounded-xl transition text-sm flex items-center justify-center border border-zinc-700/50"
           >
-            Static Board Quiz
+            QCM Annales
           </button>
 
           <button
@@ -286,7 +286,7 @@ export default function QuickLauncher({ hierarchy = MOCK_HIERARCHY }: QuickLaunc
             onClick={() => handleLaunch('dynamic')}
             className="bg-red-600 hover:bg-red-500 text-white font-semibold px-5 py-3 rounded-xl shadow-[0_0_25px_rgba(220,38,38,0.35)] transition text-sm flex items-center justify-center"
           >
-            Start AI Quiz
+            Lancer Quiz IA
           </button>
         </div>
       </div>

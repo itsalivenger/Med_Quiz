@@ -6,10 +6,7 @@ import {
   Search,
   ChevronDown,
   ChevronRight,
-  Target,
-  Zap,
   X,
-  Layers,
   BookOpen,
   FolderTree,
   CheckCircle2,
@@ -17,7 +14,7 @@ import {
 import { MOCK_HIERARCHY } from '@/components/QuickLauncher';
 import type { Course } from '@/lib/types';
 
-// ─── Modal: Launch Config Drawer ──────────────────────────────────
+// ─── Fenêtre modale de lancement ──────────────────────────────────
 interface LaunchModalProps {
   course: Course & { slug: string[]; path: string };
   onClose: () => void;
@@ -29,13 +26,13 @@ function LaunchModal({ course, onClose }: LaunchModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
+      {/* Fond obscurci */}
       <div
         className="absolute inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
-      {/* Modal Surface */}
+      {/* Surface de la boîte modale */}
       <div className="relative w-full max-w-sm rounded-2xl border border-zinc-800 bg-[#181818] p-6 shadow-2xl animate-fade-up text-left">
         <button
           onClick={onClose}
@@ -45,26 +42,26 @@ function LaunchModal({ course, onClose }: LaunchModalProps) {
         </button>
 
         <span className="text-[11px] font-semibold text-red-500 uppercase tracking-wider">
-          Topic Selected
+          Sujet Sélectionné
         </span>
 
         <h3 className="mt-1 text-lg font-bold text-white">{course.name}</h3>
         <p className="mt-0.5 text-xs text-zinc-400">{course.path}</p>
 
-        {/* Action Buttons */}
+        {/* Boutons d'action (Sans aucun émoji) */}
         <div className="mt-6 flex flex-col gap-2.5">
           <button
             onClick={() => router.push(`/quiz/static/${slugPath}`)}
             className="flex items-center justify-center gap-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-3 text-sm transition-colors border border-zinc-700/50"
           >
-            <span>Static Board Quiz</span>
+            <span>QCM Annales</span>
           </button>
 
           <button
             onClick={() => router.push(`/quiz/dynamic/${slugPath}`)}
             className="flex items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold py-3 text-sm transition-colors shadow-lg shadow-red-900/30"
           >
-            <span>Start AI Quiz</span>
+            <span>Lancer Quiz IA</span>
           </button>
         </div>
       </div>
@@ -72,7 +69,7 @@ function LaunchModal({ course, onClose }: LaunchModalProps) {
   );
 }
 
-// ─── Progress Ring Component ──────────────────────────────────────
+// ─── Anneau de Progression ────────────────────────────────────────
 function ProgressRing({ completed, total }: { completed: number; total: number }) {
   const radius = 12;
   const circumference = 2 * Math.PI * radius;
@@ -109,7 +106,7 @@ function ProgressRing({ completed, total }: { completed: number; total: number }
   );
 }
 
-// ─── System Group Accordion ───────────────────────────────────────
+// ─── Groupe Système en Accordéon ──────────────────────────────────
 interface SystemGroupProps {
   name: string;
   courses: Course[];
@@ -149,7 +146,7 @@ function SystemGroupAccordion({
         <div className="flex items-center gap-2.5">
           <FolderTree className="h-4 w-4 text-red-500" />
           <h4 className="text-sm font-semibold text-slate-200">{name}</h4>
-          <span className="text-[11px] text-zinc-500">({filtered.length} topics)</span>
+          <span className="text-[11px] text-zinc-500">({filtered.length} sujets)</span>
         </div>
 
         {open ? (
@@ -187,7 +184,7 @@ function SystemGroupAccordion({
                       {course.name}
                     </span>
                     <span className="text-[10px] text-zinc-500">
-                      {completedCount}/{course.question_count} completed
+                      {completedCount}/{course.question_count} validés
                     </span>
                   </div>
 
@@ -202,7 +199,7 @@ function SystemGroupAccordion({
   );
 }
 
-// ─── Main Catalog Page ────────────────────────────────────────────
+// ─── Page Principale du Catalogue ─────────────────────────────────
 export default function CatalogPage() {
   const [query, setQuery] = useState('');
   const [activeYear, setActiveYear] = useState(MOCK_HIERARCHY[0]?.id ?? 'y1');
@@ -243,22 +240,22 @@ export default function CatalogPage() {
   return (
     <div className="min-h-screen bg-[#111111] px-4 py-8 sm:px-6 lg:px-8 text-slate-100">
       <div className="mx-auto w-full max-w-5xl space-y-6">
-        {/* Title Header */}
+        {/* En-tête */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-6 border-b border-zinc-800">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Course Catalog</h1>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Catalogue des Cours</h1>
             <p className="mt-0.5 text-xs sm:text-sm text-slate-400">
-              Select any topic to start a targeted static or dynamic quiz.
+              Sélectionnez un sujet pour démarrer un entraînement ciblé en annales ou par IA.
             </p>
           </div>
 
           <span className="inline-flex items-center gap-1.5 text-xs text-zinc-400 self-start sm:self-auto border border-zinc-800 rounded-full px-3 py-1">
             <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-            {allFlattenedCourses.length} Topics Available
+            {allFlattenedCourses.length} Sujets disponibles
           </span>
         </div>
 
-        {/* ── Search & Year Filter Strip ── */}
+        {/* ── Recherche & Filtre d'Année ── */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
@@ -266,7 +263,7 @@ export default function CatalogPage() {
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search topics (e.g., Scapula, Brainstem, ECG)..."
+              placeholder="Rechercher un sujet (ex. Scapula, Tronc cérébral, ECG, Inflammation)..."
               className="w-full rounded-xl border border-zinc-800 bg-[#181818] py-2.5 pl-10 pr-9 text-sm text-white placeholder-zinc-500 outline-none transition-colors focus:border-red-600 focus:ring-1 focus:ring-red-600/30"
             />
             {query && (
@@ -274,7 +271,7 @@ export default function CatalogPage() {
                 onClick={() => setQuery('')}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white"
               >
-                <X className="h-3.5 w-3.5" />
+                <X className="h-4 w-4" />
               </button>
             )}
           </div>
@@ -297,11 +294,11 @@ export default function CatalogPage() {
           </div>
         </div>
 
-        {/* Search Results */}
+        {/* Résultats de recherche instantanés */}
         {searchResults.length > 0 && (
           <div className="rounded-xl border border-zinc-800 bg-[#181818] p-4 space-y-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-red-500">
-              Matching Topics ({searchResults.length})
+              Sujets correspondants ({searchResults.length})
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {searchResults.map((c) => (
@@ -315,7 +312,7 @@ export default function CatalogPage() {
                     <p className="text-[10px] text-zinc-500 truncate">{c.path}</p>
                   </div>
                   <span className="text-[10px] text-zinc-400 shrink-0">
-                    {c.question_count} Qs
+                    {c.question_count} QCM
                   </span>
                 </div>
               ))}
@@ -323,7 +320,7 @@ export default function CatalogPage() {
           </div>
         )}
 
-        {/* ── Hierarchy Matrix ── */}
+        {/* ── Matrice Hiérarchique ── */}
         <div className="space-y-8 pt-2">
           {currentYear.semesters.map((sem) => (
             <div key={sem.id} className="space-y-4">
@@ -362,7 +359,7 @@ export default function CatalogPage() {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Fenêtre modale */}
       {selectedCourseModal && (
         <LaunchModal
           course={selectedCourseModal}

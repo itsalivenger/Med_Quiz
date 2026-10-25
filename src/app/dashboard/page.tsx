@@ -2,8 +2,8 @@ import StatsOverview from '@/components/StatsOverview';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Dashboard',
-  description: 'Track your quiz history, accuracy per subject, and weak-spot breakdown.',
+  title: 'Tableau de bord',
+  description: 'Suivez votre historique de révision, votre précision par matière et ciblez vos points faibles.',
 };
 
 export default function DashboardPage() {

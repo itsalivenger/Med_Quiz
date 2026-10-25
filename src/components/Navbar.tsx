@@ -22,7 +22,7 @@ export default function Navbar() {
             href="/catalog"
             className="text-xs sm:text-sm font-medium text-zinc-400 transition-colors hover:text-white"
           >
-            Catalog
+            Catalogue
           </Link>
           <Link
             href="/faq"
@@ -35,13 +35,13 @@ export default function Navbar() {
         {/* ── Right: Guest Mode + Sign In ── */}
         <div className="flex items-center gap-4">
           <span className="hidden sm:inline-flex items-center text-xs text-zinc-400 border border-zinc-800 px-3 py-1 rounded-full bg-zinc-900/40">
-            Guest Mode
+            Mode Invité
           </span>
           <Link
             href="/auth/login"
             className="text-xs sm:text-sm font-medium text-zinc-400 transition-colors hover:text-white"
           >
-            Sign In
+            Connexion
           </Link>
         </div>
       </div>

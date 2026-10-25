@@ -6,19 +6,44 @@ import QuizEngine from '@/components/QuizEngine';
 import { useQuizStore } from '@/store/useQuizStore';
 import type { Question } from '@/lib/types';
 
-// ── Mock question generator (replace with fetchStaticQuestions) ──
+// ─── Générateur de questions mockées en Français ──────────────────
 function mockQuestions(courseId: string): Question[] {
   return Array.from({ length: 5 }, (_, i) => ({
     id: `${courseId}-q${i + 1}`,
-    vignette: `A 34-year-old medical student is studying the ${courseId} for their upcoming anatomy practical (Question ${i + 1}). Which of the following statements is MOST accurate regarding its clinical significance?`,
-    title_path: `Year 1 › Anatomy › Locomoteur › ${courseId}`,
-    source_citation: `Anatomy Slide ${i + 12}`,
+    vignette: `Un patient de 34 ans consulte aux urgences suite à un traumatisme fermé de l'épaule droite. L'examen clinique et le bilan radiologique portent sur la région de : ${courseId} (Question ${i + 1}). Parmi les propositions suivantes concernant les rapports anatomiques et la sémiologie, laquelle est EXACTE ?`,
+    title_path: `1ère Année > Anatomie > Appareil Locomoteur > ${courseId}`,
+    source_citation: `Collège Médical d'Anatomie · Item ${i + 15}`,
     options: [
-      { letter: 'A', text: 'It articulates directly with the sternum via a synovial joint.',         is_correct: false, explanation: 'This describes the clavicle, not this structure.' },
-      { letter: 'B', text: 'The correct anatomical answer for this question stem.',                   is_correct: true,  explanation: 'This is correct because it accurately describes the key anatomical feature.' },
-      { letter: 'C', text: 'It is entirely intramembranous in its ossification pattern.',             is_correct: false, explanation: 'Incorrect — endochondral ossification is involved.' },
-      { letter: 'D', text: 'The axillary nerve passes superior to this structure.',                   is_correct: false, explanation: 'The axillary nerve passes inferior, through the quadrangular space.' },
-      { letter: 'E', text: 'It has no muscular attachments and serves as a pure bony landmark.',     is_correct: false, explanation: 'Several major muscles originate and insert on this structure.' },
+      {
+        letter: 'A',
+        text: 'L\'articulation sterno-costo-claviculaire est la seule liaison osseuse unissant le membre supérieur au thorax.',
+        is_correct: false,
+        explanation: 'Faux. Cette proposition décrit spécifiquement la clavicule et ses articulations axiales.',
+      },
+      {
+        letter: 'B',
+        text: 'La proposition anatomique et clinique exacte décrivant précisément cette structure.',
+        is_correct: true,
+        explanation: 'Exact. C\'est la notion fondamentale retenue au concours pour ce repère anatomique.',
+      },
+      {
+        letter: 'C',
+        text: 'L\'ossification de cette structure est exclusivement de type endoconjonctive.',
+        is_correct: false,
+        explanation: 'Faux. L\'ossification implique un processus endochondral classique pour ce type de pièce osseuse.',
+      },
+      {
+        letter: 'D',
+        text: 'Le nerf axillaire chemine au bord supérieur immédiat de cette structure.',
+        is_correct: false,
+        explanation: 'Faux. Le nerf axillaire passe dans l\'espace axillaire latéral (quadrilatère de Velpeau) sous l\'articulation.',
+      },
+      {
+        letter: 'E',
+        text: 'Aucune insertion musculaire ne s\'y attache, s\'agissant d\'un simple relais ligamentaire.',
+        is_correct: false,
+        explanation: 'Faux. Plusieurs muscles majeurs de la coiffe des rotateurs et de la ceinture scapulaire y prennent insertion.',
+      },
     ],
   }));
 }
@@ -27,12 +52,12 @@ export default function StaticQuizPage() {
   const params       = useParams();
   const searchParams = useSearchParams();
   const slug         = (params.slug as string[]) ?? [];
-  const courseId     = slug[slug.length - 1] ?? 'unknown';
+  const courseId     = slug[slug.length - 1] ?? 'scapula';
 
   const { setQuestions, questions } = useQuizStore();
 
   useEffect(() => {
-    // In production: fetchStaticQuestions(courseId).then(setQuestions)
+    // En production : fetchStaticQuestions(courseId).then(setQuestions)
     setQuestions(mockQuestions(courseId));
   }, [courseId, setQuestions]);
 
@@ -41,7 +66,7 @@ export default function StaticQuizPage() {
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="flex flex-col items-center gap-3 text-slate-500">
           <span className="h-6 w-6 animate-spin rounded-full border-2 border-red-600 border-t-transparent" />
-          <p className="text-sm">Loading questions…</p>
+          <p className="text-sm">Chargement des QCM…</p>
         </div>
       </div>
     );

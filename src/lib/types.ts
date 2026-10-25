@@ -21,6 +21,7 @@ export interface Question {
 
 /** One completed quiz session recorded in history */
 export interface QuizAttempt {
+  id?: string;
   course_id: string;
   date: string;                    // ISO-8601
   score: number;
