@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -18,9 +18,13 @@ import {
   Settings,
   Layers,
   Award,
+  LogOut,
+  User,
+  ShieldCheck,
 } from 'lucide-react';
 import StatsOverview from '@/components/StatsOverview';
 import { useUserStore } from '@/store/useUserStore';
+import { fetchStudentDashboard, logoutUser, type StudentDashboardData } from '@/lib/api';
 
 type DashboardTab = 'stats' | 'recommendations' | 'history' | 'goals';
 
@@ -59,14 +63,34 @@ const RECOMMENDED_SESSIONS = [
 
 export default function DashboardView() {
   const router = useRouter();
-  const { isGuest, displayName, history } = useUserStore();
+  const { isGuest, displayName, authToken, history, signOut } = useUserStore();
   const [activeTab, setActiveTab] = useState<DashboardTab>('stats');
   const [dailyGoal, setDailyGoal] = useState(25);
   const [targetYear, setTargetYear] = useState('1ère Année (PASS)');
+  const [backendData, setBackendData] = useState<StudentDashboardData | null>(null);
 
-  const totalSolved = history.reduce((s, a) => s + a.total, 0);
-  const todaySolved = Math.min(totalSolved, 18); // simulated today progress
+  // Load real student dashboard from MongoDB backend
+  useEffect(() => {
+    if (!isGuest || authToken) {
+      const token = authToken || (typeof window !== 'undefined' ? localStorage.getItem('medquiz_token') || undefined : undefined);
+      fetchStudentDashboard(token)
+        .then((res) => setBackendData(res))
+        .catch((err) => console.warn('[Student Dashboard] Could not load backend stats:', err));
+    }
+  }, [isGuest, authToken]);
+
+  const totalSolved = backendData?.stats?.totalQuestions ?? history.reduce((s, a) => s + a.total, 0);
+  const todaySolved = backendData?.stats?.todayQuestionsSolved ?? Math.min(totalSolved, 18);
   const goalPercent = Math.min(100, Math.round((todaySolved / dailyGoal) * 100));
+
+  const handleSignOut = async () => {
+    await logoutUser().catch(() => {});
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('medquiz_token');
+    }
+    signOut();
+    router.push('/auth/login');
+  };
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -75,7 +99,7 @@ export default function DashboardView() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              {displayName ? `Espace de révision · ${displayName}` : 'Tableau de Bord Étudiant'}
+              {backendData?.user?.name || displayName ? `Bonjour, ${backendData?.user?.name || displayName}` : 'Tableau de bord'}
             </h1>
             {isGuest ? (
               <span className="rounded-full bg-zinc-800 border border-zinc-700 px-2.5 py-0.5 text-[11px] text-zinc-300">
@@ -83,24 +107,59 @@ export default function DashboardView() {
               </span>
             ) : (
               <span className="rounded-full bg-teal-950/60 border border-teal-800 px-2.5 py-0.5 text-[11px] font-semibold text-teal-300">
-                Compte Synchronisé
+                Connecté
               </span>
             )}
           </div>
           <p className="mt-1 text-xs sm:text-sm text-zinc-400">
-            Suivi prédictif, précision par spécialité et renforcement guidé par IA.
+            Suivi de vos révisions et progression.
           </p>
         </div>
 
-        {/* Bouton de révision rapide */}
-        <Link
-          href="/selection"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-500 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-red-900/30 transition-all active:scale-[0.98]"
-        >
-          <Zap className="h-4 w-4" />
-          <span>Nouvelle session de QCM</span>
-        </Link>
+        {/* Boutons d'action */}
+        <div className="flex items-center gap-2">
+          {!isGuest && (
+            <button
+              onClick={handleSignOut}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-800 bg-[#161616] hover:bg-zinc-800 px-3 py-2 text-xs font-semibold text-zinc-400 hover:text-white transition-colors cursor-pointer"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              <span>Déconnexion</span>
+            </button>
+          )}
+
+          <Link
+            href="/selection"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-500 px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-red-900/30 transition-all active:scale-[0.98]"
+          >
+            <Zap className="h-4 w-4" />
+            <span>Nouveau QCM</span>
+          </Link>
+        </div>
       </div>
+
+      {/* Alerte Mode Invité simple */}
+      {isGuest && (
+        <div className="rounded-xl border border-zinc-800 bg-[#161616] p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <span className="text-zinc-400">
+            Mode invité actif. Créez un compte pour sauvegarder vos résultats.
+          </span>
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              href="/auth/signup"
+              className="rounded-lg bg-red-600 hover:bg-red-500 px-3 py-1.5 font-semibold text-white"
+            >
+              S&apos;inscrire
+            </Link>
+            <Link
+              href="/auth/login"
+              className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 font-medium text-zinc-300 hover:text-white"
+            >
+              Se connecter
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Onglets de sections */}
       <div className="flex items-center gap-2 overflow-x-auto border-b border-zinc-800 pb-2">

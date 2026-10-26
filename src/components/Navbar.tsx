@@ -1,7 +1,12 @@
-// RSC — no 'use client'
+'use client';
+
 import Link from 'next/link';
+import { useUserStore } from '@/store/useUserStore';
+import { ShieldCheck, User } from 'lucide-react';
 
 export default function Navbar() {
+  const { isGuest, displayName } = useUserStore();
+
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-[#111111]/80 backdrop-blur-md border-b border-zinc-800/60 px-6 py-3.5">
       <div className="mx-auto flex max-w-5xl items-center justify-between">
@@ -26,7 +31,7 @@ export default function Navbar() {
         </Link>
 
         {/* ── Center: Navigation minimale ── */}
-        <nav className="flex items-center gap-6">
+        <nav className="flex items-center gap-5 sm:gap-6">
           <Link
             href="/catalog"
             className="text-xs sm:text-sm font-medium text-zinc-400 transition-colors hover:text-white"
@@ -41,24 +46,50 @@ export default function Navbar() {
           </Link>
           <Link
             href="/faq"
-            className="text-xs sm:text-sm font-medium text-zinc-400 transition-colors hover:text-white"
+            className="hidden sm:inline text-xs sm:text-sm font-medium text-zinc-400 transition-colors hover:text-white"
           >
             FAQ
           </Link>
+          <Link
+            href="/admin/login"
+            className="hidden md:inline-flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+            title="Espace Faculté / Admin"
+          >
+            <ShieldCheck className="h-3.5 w-3.5 text-zinc-500" />
+            <span>Faculté</span>
+          </Link>
         </nav>
 
-        {/* ── Right: Guest pill (teal indicator) + Sign In ── */}
-        <div className="flex items-center gap-4">
-          <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-zinc-400 border border-zinc-800 px-3 py-1 rounded-full bg-zinc-900/40">
-            <span className="h-1.5 w-1.5 rounded-full bg-teal-500" aria-hidden="true" />
-            Mode Invité
-          </span>
-          <Link
-            href="/auth/login"
-            className="text-xs sm:text-sm font-medium text-zinc-400 transition-colors hover:text-white"
-          >
-            Connexion
-          </Link>
+        {/* ── Right: Auth & Profile indicator ── */}
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          {isGuest ? (
+            <>
+              <span className="hidden lg:inline-flex items-center gap-1.5 text-xs text-zinc-400 border border-zinc-800 px-2.5 py-1 rounded-full bg-zinc-900/40">
+                <span className="h-1.5 w-1.5 rounded-full bg-teal-500" aria-hidden="true" />
+                Mode Invité
+              </span>
+              <Link
+                href="/auth/login"
+                className="text-xs sm:text-sm font-medium text-zinc-300 transition-colors hover:text-white px-2.5 py-1"
+              >
+                Connexion
+              </Link>
+              <Link
+                href="/auth/signup"
+                className="rounded-lg bg-red-600 hover:bg-red-500 px-3 py-1.5 text-xs font-semibold text-white transition-all shadow-md shadow-red-900/20"
+              >
+                Inscription
+              </Link>
+            </>
+          ) : (
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-1.5 rounded-full border border-teal-800/80 bg-teal-950/40 px-3 py-1 text-xs font-semibold text-teal-300 hover:border-teal-700 transition-colors"
+            >
+              <User className="h-3.5 w-3.5 text-teal-400" />
+              <span>{displayName || 'Mon Espace'}</span>
+            </Link>
+          )}
         </div>
 
       </div>

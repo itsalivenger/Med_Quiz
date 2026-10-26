@@ -4,6 +4,8 @@ import { useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { X, ChevronRight, CheckCircle2, XCircle, Clock, BookOpen, RotateCcw, ShieldCheck } from 'lucide-react';
 import { useQuizStore } from '@/store/useQuizStore';
+import { useUserStore } from '@/store/useUserStore';
+import { recordStudentAttempt } from '@/lib/api';
 
 // ─── Formatage du temps ───────────────────────────────────────────
 function formatTime(secs: number) {
@@ -131,6 +133,9 @@ export default function QuizEngine() {
     resetQuiz,
   } = useQuizStore();
 
+  const recordedRef = useRef(false);
+  const { addAttempt, authToken } = useUserStore();
+
   useEffect(() => {
     if (timerSeconds > 0 && !isSubmitted && !isFinished) {
       timerRef.current = setInterval(tickTimer, 1000);
@@ -139,6 +144,31 @@ export default function QuizEngine() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [timerSeconds, isSubmitted, isFinished, tickTimer]);
+
+  useEffect(() => {
+    if (isFinished && !recordedRef.current && questions.length > 0) {
+      recordedRef.current = true;
+      const attempt = {
+        course_id: questions[0]?.title_path || 'general',
+        date: new Date().toISOString(),
+        score,
+        total: questions.length,
+        mode: 'dynamic' as const,
+      };
+      addAttempt(attempt);
+
+      const token = authToken || (typeof window !== 'undefined' ? localStorage.getItem('medquiz_token') || undefined : undefined);
+      recordStudentAttempt(
+        {
+          courseId: questions[0]?.title_path || 'general',
+          score,
+          total: questions.length,
+          mode: 'dynamic',
+        },
+        token
+      ).catch((err) => console.warn('[QuizEngine] Attempt auto-save warning:', err));
+    }
+  }, [isFinished, questions, score, addAttempt, authToken]);
 
   const q = questions[currentIndex];
   const selected = userAnswers[currentIndex] ?? '';
